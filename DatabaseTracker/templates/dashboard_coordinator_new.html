@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Coordinator Dashboard - FYP Navigator{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2>
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Coordinator Dashboard
+        </h2>
+    </div>
+    
+    <div class="row">
+        <!-- Welcome Card -->
+        <div class="col-lg-12 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Welcome, Dr. {{ current_user.full_name }}!</h4>
+                    <p class="card-text">This dashboard provides you with an overview of all final year projects and allows you to approve or reject project proposals.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Row -->
+        <div class="col-lg-12 mb-4">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-warning h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-3 text-center">
+                                    <i class="fas fa-clipboard-list fa-3x text-warning"></i>
+                                </div>
+                                <div class="col-9">
+                                    <div class="text-xs text-uppercase mb-1">Pending Projects</div>
+                                    <div class="h2 mb-0">{{ pending_projects|length }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="#pending-projects" class="text-decoration-none">View details</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-success h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-3 text-center">
+                                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                                </div>
+                                <div class="col-9">
+                                    <div class="text-xs text-uppercase mb-1">Approved Projects</div>
+                                    <div class="h2 mb-0">{{ approved_projects|length }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="#approved-projects" class="text-decoration-none">View details</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-danger h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-3 text-center">
+                                    <i class="fas fa-times-circle fa-3x text-danger"></i>
+                                </div>
+                                <div class="col-9">
+                                    <div class="text-xs text-uppercase mb-1">Rejected Projects</div>
+                                    <div class="h2 mb-0">{{ rejected_projects|length }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="#rejected-projects" class="text-decoration-none">View details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Pending Projects Section -->
+            <div class="card mb-4" id="pending-projects">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2 text-warning"></i>Pending Projects</h5>
+                    <a href="{{ url_for('list_projects', status='pending') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if pending_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Submitted</th>
+                                        <th>Supervisor</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in pending_projects[:5] %}
+                                        <tr>
+                                            <td>{{ project.title }}</td>
+                                            <td>{{ project.creator.user.full_name }}</td>
+                                            <td>{{ project.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                {% if project.supervisor %}
+                                                    {{ project.supervisor.user.full_name }}
+                                                {% else %}
+                                                    <span class="text-muted">Not assigned</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% if pending_projects|length > 5 %}
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('list_projects', status='pending') }}" class="btn btn-outline-primary">
+                                        View All {{ pending_projects|length }} Pending Projects
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            There are no pending projects at the moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Approved Projects Section -->
+            <div class="card mb-4" id="approved-projects">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2 text-success"></i>Recently Approved Projects</h5>
+                    <a href="{{ url_for('list_projects', status='approved') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if approved_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Team Size</th>
+                                        <th>Supervisor</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in approved_projects[:5] %}
+                                        <tr>
+                                            <td>{{ project.title }}</td>
+                                            <td>{{ project.creator.user.full_name }}</td>
+                                            <td>
+                                                {{ project.team_members.count() }}/{{ project.max_members }}
+                                            </td>
+                                            <td>
+                                                {% if project.supervisor %}
+                                                    {{ project.supervisor.user.full_name }}
+                                                {% else %}
+                                                    <span class="text-muted">Not assigned</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% if approved_projects|length > 5 %}
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('list_projects', status='approved') }}" class="btn btn-outline-primary">
+                                        View All {{ approved_projects|length }} Approved Projects
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            There are no approved projects yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Rejected Projects Section -->
+            <div class="card mb-4" id="rejected-projects">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-times-circle me-2 text-danger"></i>Recently Rejected Projects</h5>
+                    <a href="{{ url_for('list_projects', status='rejected') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if rejected_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Rejected Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in rejected_projects[:5] %}
+                                        <tr>
+                                            <td>{{ project.title }}</td>
+                                            <td>{{ project.creator.user.full_name }}</td>
+                                            <td>{{ project.updated_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% if rejected_projects|length > 5 %}
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('list_projects', status='rejected') }}" class="btn btn-outline-primary">
+                                        View All {{ rejected_projects|length }} Rejected Projects
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            There are no rejected projects yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>My Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-placeholder mx-auto mb-3">
+                            <i class="fas fa-user-cog fa-5x"></i>
+                        </div>
+                        <h5>Dr. {{ current_user.full_name }}</h5>
+                        <p class="text-muted mb-1">{{ current_user.registration_number }}</p>
+                        <p class="text-muted mb-0">{{ current_user.coordinator.department }}</p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="d-flex align-items-center mb-2"><i class="fas fa-envelope me-2"></i>Email</h6>
+                        <p class="ms-4 mb-0">{{ current_user.email }}</p>
+                    </div>
+                    <div class="mb-2">
+                        <h6 class="d-flex align-items-center mb-2"><i class="fas fa-graduation-cap me-2"></i>Faculty</h6>
+                        <p class="ms-4 mb-0">{{ current_user.faculty }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Notifications</h5>
+                    <a href="{{ url_for('view_notifications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if notifications %}
+                            {% for notification in notifications %}
+                                <div class="list-group-item {% if not notification.read %}bg-light{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <small class="text-muted">{{ notification.created_at.strftime('%d %b, %H:%M') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ notification.message }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item">
+                                <p class="text-center mb-0">No notifications yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

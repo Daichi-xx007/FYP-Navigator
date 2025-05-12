@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Supervisor Dashboard - FYP Navigator{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2>
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Supervisor Dashboard
+        </h2>
+    </div>
+    
+    <div class="row">
+        <!-- Welcome Card -->
+        <div class="col-lg-12 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Welcome, Prof. {{ current_user.full_name }}!</h4>
+                    <p class="card-text">This dashboard provides you with an overview of the final year projects you're supervising and allows you to review project proposals.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Supervised Projects Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Projects I'm Supervising</h5>
+                    <a href="{{ url_for('list_projects') }}" class="btn btn-sm btn-outline-primary">View All Projects</a>
+                </div>
+                <div class="card-body">
+                    {% if supervised_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Status</th>
+                                        <th>Team</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in supervised_projects %}
+                                        <tr>
+                                            <td>{{ project.title }}</td>
+                                            <td>{{ project.creator.user.full_name }}</td>
+                                            <td>
+                                                {% if project.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif project.status == 'approved' %}
+                                                    <span class="badge bg-success">Approved</span>
+                                                {% elif project.status == 'rejected' %}
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {{ project.team_members.count() }}/{{ project.max_members }}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            You aren't supervising any projects yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Projects Needing Supervision -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-inbox me-2"></i>Projects Needing Supervision</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Submitted</th>
+                                        <th>Skills</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in pending_projects %}
+                                        <tr>
+                                            <td>{{ project.title }}</td>
+                                            <td>{{ project.creator.user.full_name }}</td>
+                                            <td>{{ project.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                {% if project.required_skills %}
+                                                    {% set skills = project.required_skills.split(',') %}
+                                                    {% for skill in skills[:2] %}
+                                                        <span class="badge bg-secondary">{{ skill.strip() }}</span>
+                                                    {% endfor %}
+                                                    {% if skills|length > 2 %}
+                                                        <span class="badge bg-secondary">+{{ skills|length - 2 }}</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted">None specified</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            There are no pending projects that need supervision at the moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>My Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-placeholder mx-auto mb-3">
+                            <i class="fas fa-user-tie fa-5x"></i>
+                        </div>
+                        <h5>Prof. {{ current_user.full_name }}</h5>
+                        <p class="text-muted mb-1">{{ current_user.registration_number }}</p>
+                        <p class="text-muted mb-0">{{ current_user.supervisor.department }}</p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="d-flex align-items-center mb-2"><i class="fas fa-envelope me-2"></i>Email</h6>
+                        <p class="ms-4 mb-0">{{ current_user.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="d-flex align-items-center mb-2"><i class="fas fa-graduation-cap me-2"></i>Faculty</h6>
+                        <p class="ms-4 mb-0">{{ current_user.faculty }}</p>
+                    </div>
+                    <div class="mb-2">
+                        <h6 class="d-flex align-items-center mb-2"><i class="fas fa-star me-2"></i>Specialization</h6>
+                        <p class="ms-4 mb-0">{{ current_user.supervisor.specialization or 'Not specified' }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Notifications</h5>
+                    <a href="{{ url_for('view_notifications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if notifications %}
+                            {% for notification in notifications %}
+                                <div class="list-group-item {% if not notification.read %}bg-light{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <small class="text-muted">{{ notification.created_at.strftime('%d %b, %H:%M') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ notification.message }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item">
+                                <p class="text-center mb-0">No notifications yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Supervision Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            {% set approved_count = 0 %}
+                            {% for project in supervised_projects %}
+                                {% if project.status == 'approved' %}
+                                    {% set approved_count = approved_count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <h2 class="text-primary">{{ approved_count }}</h2>
+                            <p class="text-muted">Approved</p>
+                        </div>
+                        <div class="col-6 mb-3">
+                            {% set pending_count = 0 %}
+                            {% for project in supervised_projects %}
+                                {% if project.status == 'pending' %}
+                                    {% set pending_count = pending_count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            <h2 class="text-warning">{{ pending_count }}</h2>
+                            <p class="text-muted">Pending</p>
+                        </div>
+                        <div class="col-12">
+                            {% set student_count = 0 %}
+                            {% for project in supervised_projects %}
+                                {% set student_count = student_count + project.team_members.count() %}
+                            {% endfor %}
+                            <h2 class="text-info">{{ student_count }}</h2>
+                            <p class="text-muted">Students</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

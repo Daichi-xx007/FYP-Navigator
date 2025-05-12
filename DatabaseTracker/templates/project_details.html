@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - FYP Navigator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Project Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    Project Details
+                </h4>
+                <span class="badge {% if project.status == 'pending' %}bg-warning{% elif project.status == 'approved' %}bg-success{% elif project.status == 'rejected' %}bg-danger{% endif %}">
+                    {{ project.status|capitalize }}
+                </span>
+            </div>
+            <div class="card-body">
+                <h2 class="mb-3">{{ project.title }}</h2>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-user me-2"></i>
+                            Created by: <strong>{{ project.creator.user.full_name }}</strong>
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Submitted: <strong>{{ project.created_at.strftime('%d %b %Y') }}</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-user-tie me-2"></i>
+                            Supervisor: 
+                            <strong>
+                                {% if project.supervisor %}
+                                    {{ project.supervisor.user.full_name }}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </strong>
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-users me-2"></i>
+                            Team Size: <strong>{{ project.team_members.count() }}/{{ project.max_members }}</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <h5 class="mb-3">Project Description</h5>
+                <div class="p-3 bg-light rounded mb-4">
+                    {{ project.description|safe|nl2br }}
+                </div>
+                
+                {% if project.required_skills %}
+                    <h5 class="mb-3">Required Skills</h5>
+                    <div class="mb-4">
+                        {% for skill in project.required_skills.split(',') %}
+                            <span class="badge bg-secondary me-1 mb-1">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Approval Form for Coordinators -->
+                {% if can_approve and project.status == 'pending' %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary bg-opacity-25">
+                            <h5 class="mb-0">Project Approval</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('approve_project', project_id=project.id) }}">
+                                {{ approval_form.hidden_tag() }}
+                                {{ approval_form.project_id }}
+                                
+                                <div class="mb-3">
+                                    {{ approval_form.status.label(class="form-label") }}
+                                    {{ approval_form.status(class="form-select") }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ approval_form.comment.label(class="form-label") }}
+                                    {{ approval_form.comment(class="form-control", rows=3, placeholder="Provide feedback for the student...") }}
+                                </div>
+                                
+                                <div class="d-grid">
+                                    {{ approval_form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Discussion</h5>
+            </div>
+            <div class="card-body">
+                <!-- Comment Form -->
+                <form method="POST" action="{{ url_for('add_comment', project_id=project.id) }}" class="mb-4">
+                    {{ comment_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ comment_form.content(class="form-control", rows=3, placeholder="Write a comment...") }}
+                    </div>
+                    <div class="text-end">
+                        {{ comment_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+                
+                <!-- Comments List -->
+                <div class="comments-section">
+                    {% if comments %}
+                        {% for comment in comments %}
+                            <div class="comment mb-3 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <h6 class="mb-0">{{ comment.user.full_name }}</h6>
+                                    <small class="text-muted">{{ comment.created_at.strftime('%d %b %Y, %H:%M') }}</small>
+                                </div>
+                                <p class="mb-0">{{ comment.content }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center p-4">
+                            <i class="fas fa-comments fa-3x mb-3 text-muted"></i>
+                            <p class="mb-0">No comments yet. Be the first to start the discussion!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Team Members -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Team Members</h5>
+            </div>
+            <div class="card-body">
+                {% if project.team_members.count() > 0 %}
+                    <ul class="list-group list-group-flush">
+                        {% for member in project.team_members %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ member.user.full_name }}</h6>
+                                    <small class="text-muted">{{ member.degree }}</small>
+                                </div>
+                                {% if member.id == project.creator_id %}
+                                    <span class="badge bg-primary">Creator</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-center">No team members yet.</p>
+                {% endif %}
+                
+                <!-- Team Formation Form (for project creator) -->
+                {% if can_add_members %}
+                    <hr>
+                    <form method="POST" action="{{ url_for('add_team_member', project_id=project.id) }}">
+                        {{ team_formation_form.hidden_tag() }}
+                        {{ team_formation_form.project_id }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Add Team Member</label>
+                            {{ team_formation_form.students(class="form-select") }}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ team_formation_form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Project Status Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Project Status</h5>
+            </div>
+            <div class="card-body">
+                <ul class="timeline">
+                    <li class="timeline-item">
+                        <h6>Submitted</h6>
+                        <p class="text-muted mb-0">{{ project.created_at.strftime('%d %b %Y') }}</p>
+                    </li>
+                    
+                    <li class="timeline-item">
+                        <h6>Review Status</h6>
+                        <p class="mb-0">
+                            {% if project.status == 'pending' %}
+                                <span class="badge bg-warning">Pending Review</span>
+                            {% elif project.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif project.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </p>
+                    </li>
+                    
+                    <li class="timeline-item">
+                        <h6>Team Formation</h6>
+                        <p class="mb-0">
+                            {% if project.status == 'approved' %}
+                                {% if project.team_members.count() < project.max_members %}
+                                    <span class="badge bg-info">In Progress</span>
+                                {% else %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Waiting for Approval</span>
+                            {% endif %}
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2 mb-4">
+            <a href="{{ url_for('list_projects') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Projects List
+            </a>
+            {% if current_user.role == 'student' and current_user.student.id != project.creator_id and project.status == 'approved' and project.team_members.count() < project.max_members %}
+                <form action="{{ url_for('join_project', project_id=project.id) }}" method="post">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-users me-2"></i>Join This Project
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Chat Box Section (Only visible to team members, supervisor and coordinator) -->
+{% if is_team_member %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Project Chat</h5>
+                <span class="badge bg-info">{{ chat_messages|length }} messages</span>
+            </div>
+            <div class="card-body">
+                <!-- Chat Messages Container -->
+                <div class="chat-container mb-4" style="max-height: 300px; overflow-y: auto;">
+                    {% if chat_messages %}
+                        {% for message in chat_messages %}
+                            <div class="chat-message mb-3 p-3 rounded {% if message.user_id == current_user.id %}bg-light text-dark ms-auto{% else %}bg-primary text-white{% endif %}" style="max-width: 80%;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <strong>{{ message.user.full_name }}</strong>
+                                    <small class="{% if message.user_id == current_user.id %}text-muted{% else %}text-light{% endif %}">
+                                        {{ message.created_at.strftime('%d %b, %H:%M') }}
+                                    </small>
+                                </div>
+                                <p class="mb-0">{{ message.content }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center p-4">
+                            <i class="fas fa-comment-dots fa-3x mb-3 text-muted"></i>
+                            <p class="mb-0">No messages yet. Start the conversation!</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Chat Input Form -->
+                <form action="{{ url_for('send_chat_message') }}" method="post">
+                    {{ chat_form.hidden_tag() }}
+                    {{ chat_form.chat_room_id }}
+                    
+                    <div class="input-group">
+                        {{ chat_form.content(class="form-control", placeholder="Type your message here...", rows="2") }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,110 @@
+/* Custom styles for FYP Navigator */
+
+/* Avatar placeholder */
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--bs-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-light);
+    font-size: 1.5rem;
+}
+
+/* Steps in the "How It Works" section */
+.circle-step {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+/* Timeline for project status */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+    list-style: none;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--bs-secondary);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+}
+
+/* Border styles for empty team slots */
+.border-dashed {
+    border-style: dashed;
+    border-width: 2px;
+    border-color: var(--bs-secondary);
+}
+
+/* For nl2br filter in project description */
+.nl2br {
+    white-space: pre-line;
+}
+
+/* Custom card accents */
+.border-left-primary {
+    border-left: 4px solid var(--bs-primary);
+}
+
+.border-left-success {
+    border-left: 4px solid var(--bs-success);
+}
+
+.border-left-warning {
+    border-left: 4px solid var(--bs-warning);
+}
+
+.border-left-danger {
+    border-left: 4px solid var(--bs-danger);
+}
+
+/* Mobile responsiveness adjustments */
+@media (max-width: 767.98px) {
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+    
+    .circle-step {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}

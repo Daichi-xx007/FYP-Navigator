@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project - FYP Navigator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary bg-opacity-50 text-center py-3">
+                <h3 class="mb-0">Create New Project</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="form-control") }}
+                        {% endif %}
+                        <div class="form-text">Choose a clear, descriptive title that accurately represents your project.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="form-control is-invalid", rows=6) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.description.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="form-control", rows=6) }}
+                        {% endif %}
+                        <div class="form-text">
+                            Provide a detailed description of your project. Include:
+                            <ul class="mb-0 ms-3">
+                                <li>Project objectives and purpose</li>
+                                <li>Scope and features</li>
+                                <li>Technologies and methods</li>
+                                <li>Expected outcomes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.required_skills.label(class="form-label") }}
+                        {% if form.required_skills.errors %}
+                            {{ form.required_skills(class="form-control is-invalid", rows=3) }}
+                            <div class="invalid-feedback">
+                                {% for error in form.required_skills.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.required_skills(class="form-control", rows=3, placeholder="Python, Database Design, UI/UX, Machine Learning...") }}
+                        {% endif %}
+                        <div class="form-text">List skills needed for the project, separated by commas.</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.supervisor_id.label(class="form-label") }}
+                            {% if form.supervisor_id.errors %}
+                                {{ form.supervisor_id(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.supervisor_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.supervisor_id(class="form-select") }}
+                            {% endif %}
+                            <div class="form-text">You can select a supervisor now or leave it for later.</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.max_members.label(class="form-label") }}
+                            {% if form.max_members.errors %}
+                                {{ form.max_members(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.max_members.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.max_members(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Maximum number of students in the project team.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important:</strong> Your project will be automatically checked for duplicates. 
+                        Make sure your idea is original and not already proposed by another student.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

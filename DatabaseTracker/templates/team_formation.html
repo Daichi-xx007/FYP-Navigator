@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Team Formation - {{ project.title }} - FYP Navigator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary bg-opacity-50 text-center py-3">
+                <h3 class="mb-0">Team Formation</h3>
+                <p class="mb-0 text-muted">{{ project.title }}</p>
+            </div>
+            <div class="card-body p-4">
+                <!-- Current Team Members -->
+                <div class="mb-4">
+                    <h4 class="mb-3">Current Team Members ({{ project.team_members.count() }}/{{ project.max_members }})</h4>
+                    
+                    <div class="row">
+                        {% for member in project.team_members %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">{{ member.user.full_name }}</h5>
+                                            {% if member.id == project.creator_id %}
+                                                <span class="badge bg-primary">Team Leader</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-muted mb-2">{{ member.user.registration_number }}</p>
+                                        <p class="mb-3">{{ member.degree }}</p>
+                                        
+                                        {% if member.skills %}
+                                            <h6 class="mb-2">Skills:</h6>
+                                            <div>
+                                                {% for skill in member.skills.split(',') %}
+                                                    <span class="badge bg-secondary me-1 mb-1">{{ skill.strip() }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Empty slots -->
+                        {% for i in range(project.max_members - project.team_members.count()) %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-dashed">
+                                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-muted">
+                                        <i class="fas fa-user-plus fa-3x mb-3"></i>
+                                        <p class="mb-0">Available Slot</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Add Team Member Form -->
+                {% if can_add_members %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0">Add Team Member</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('add_team_member', project_id=project.id) }}">
+                                {{ team_formation_form.hidden_tag() }}
+                                {{ team_formation_form.project_id }}
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Student</label>
+                                            {{ team_formation_form.students(class="form-select") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <div class="d-grid w-100">
+                                            {{ team_formation_form.submit(class="btn btn-primary") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Project Requirements and Criteria -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">Project Requirements</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="mb-3">Project Description</h5>
+                        <p>{{ project.description }}</p>
+                        
+                        {% if project.required_skills %}
+                            <h5 class="mb-3">Required Skills</h5>
+                            <div class="mb-4">
+                                {% for skill in project.required_skills.split(',') %}
+                                    <span class="badge bg-secondary me-1 mb-1">{{ skill.strip() }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>Teams should have members with complementary skills to handle all aspects of the project.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer text-center py-3">
+                <a href="{{ url_for('view_project', project_id=project.id) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Project Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

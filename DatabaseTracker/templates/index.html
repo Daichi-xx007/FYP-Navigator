@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}FYP Navigator - Home{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="py-5 text-center">
+        <div class="row py-lg-5">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <h1 class="fw-bold">FYP Navigator</h1>
+                <p class="lead">Revolutionizing the Final Year Project experience for students, supervisors, and coordinators.</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">Go to Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 gap-3">Get Started</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-4">
+        <h2 class="text-center mb-4">Key Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-lightbulb fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">Project Submission</h5>
+                        <p class="card-text">Submit your innovative project ideas with a smart duplicate detection system to ensure originality.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">Team Formation</h5>
+                        <p class="card-text">Form balanced project teams based on shared interests and complementary skills.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tasks fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">Streamlined Approvals</h5>
+                        <p class="card-text">Efficient review process for supervisors and coordinators with integrated communication tools.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-5">
+        <h2 class="text-center mb-4">How It Works</h2>
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <div class="circle-step">1</div>
+                <h5 class="mt-3">Register</h5>
+                <p>Create an account as a student, supervisor, or coordinator.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="circle-step">2</div>
+                <h5 class="mt-3">Submit Project</h5>
+                <p>Propose your innovative final year project ideas.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="circle-step">3</div>
+                <h5 class="mt-3">Form Team</h5>
+                <p>Create balanced teams with complementary skill sets.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="circle-step">4</div>
+                <h5 class="mt-3">Get Approved</h5>
+                <p>Supervisors and coordinators review and approve projects.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 bg-secondary bg-opacity-10 rounded my-4">
+        <h2 class="text-center mb-4">What People Say</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"FYP Navigator streamlined our entire project selection process. Students love the intuitive interface, and as a coordinator, I can easily track and approve submissions."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-placeholder me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Dr. Sarah Johnson</h6>
+                                <small class="text-muted">FYP Coordinator</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"The platform made it so easy to find team members with complementary skills. We got our project approved quickly and could focus on the actual work instead of administrative tasks."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-placeholder me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Ahmed Hassan</h6>
+                                <small class="text-muted">Computer Science Student</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text">"As a supervisor, I can now efficiently review projects and provide feedback. The notification system ensures I never miss important updates from my students."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-placeholder me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Prof. Michael Chen</h6>
+                                <small class="text-muted">Project Supervisor</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-5 text-center">
+        <h2>Ready to Transform Your FYP Experience?</h2>
+        <p class="lead">Join the growing community of students, supervisors, and coordinators using FYP Navigator.</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg mt-3">Go to Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg mt-3">Get Started Today</a>
+        {% endif %}
+    </section>
+{% endblock %}
